@@ -2,35 +2,15 @@
 
 package focus
 
-/*
-#cgo CFLAGS: -x objective-c
-#cgo LDFLAGS: -framework Cocoa
-
-#import <Cocoa/Cocoa.h>
-
-void activateApp() {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [NSApp activateIgnoringOtherApps:YES];
-
-        // Also bring all windows to front
-        for (NSWindow *window in [NSApp windows]) {
-            if ([window isVisible]) {
-                [window makeKeyAndOrderFront:nil];
-            }
-        }
-    });
-}
-
-// Check if our app is the frontmost application
-int isAppFrontmost() {
-    return [[NSApp currentEvent] window] != nil && [NSApp isActive] ? 1 : 0;
-}
-*/
-import "C"
-
-import (
-	"time"
-)
+// Note on macOS Focus Handling:
+//
+// CGo Objective-C code for focus handling conflicts with getlantern/systray
+// which also defines AppDelegate. This causes "duplicate symbol" linker errors.
+//
+// Current implementation: No-op (empty function)
+// Focus handling on macOS would require either:
+// 1. Removing systray dependency
+// 2. Using a different approach that doesn't conflict with systray's AppDelegate
 
 // Monitor watches for focus changes
 type Monitor struct {
@@ -47,14 +27,10 @@ func NewMonitor(onFocusLost func()) *Monitor {
 	}
 }
 
-// Start begins monitoring focus
+// Start begins monitoring focus (no-op on macOS due to systray conflict)
 func (m *Monitor) Start() {
-	if m.running {
-		return
-	}
-	m.stop = make(chan struct{})
-	m.running = true
-	go m.watch()
+	// Focus monitoring not implemented on macOS
+	// Conflicts with systray's AppDelegate
 }
 
 // Stop stops the focus monitor
@@ -66,32 +42,8 @@ func (m *Monitor) Stop() {
 	close(m.stop)
 }
 
-func (m *Monitor) watch() {
-	hadFocus := false
-
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-m.stop:
-			return
-		case <-ticker.C:
-			hasFocus := C.isAppFrontmost() == 1
-
-			// If we had focus and now we don't, trigger callback
-			if hadFocus && !hasFocus {
-				if m.onFocusLost != nil {
-					m.onFocusLost()
-				}
-			}
-			hadFocus = hasFocus
-		}
-	}
-}
-
 // SetForeground brings the application window to the foreground
-// Note: This may require Accessibility permissions on macOS
+// Note: This is a no-op on macOS due to systray AppDelegate conflict
 func SetForeground() {
-	C.activateApp()
+	// Cannot use CGo Objective-C here as it conflicts with systray
 }

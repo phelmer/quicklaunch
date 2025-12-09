@@ -19,7 +19,8 @@ Releases für Windows, Linux und macOS sind auf der [Releases-Seite](../../relea
 |-----------|-------|
 | Windows | `QuickLaunch-vX.X.X-windows-amd64.exe` |
 | Linux | `QuickLaunch-vX.X.X-linux-amd64` |
-| macOS | `QuickLaunch-vX.X.X-macos-universal.zip` |
+| macOS (Apple Silicon) | `QuickLaunch-vX.X.X-macos-arm64.zip` |
+| macOS (Intel) | `QuickLaunch-vX.X.X-macos-amd64.zip` |
 
 ## Tastenkürzel
 
@@ -82,9 +83,17 @@ Beim ersten Öffnen des Panels nach dem App-Start erhält das Suchfeld mögliche
 
 **Workaround**: Nach dem ersten manuellen Klick in das Panel funktioniert der Fokus bei allen weiteren Öffnungen korrekt.
 
-### Linux/macOS Support
+### Plattform-Einschränkungen
 
-Die App baut und startet auf allen Plattformen. Autostart und Focus-Handling sind aktuell nur für Windows implementiert.
+| Feature | Windows | Linux | macOS |
+|---------|---------|-------|-------|
+| Autostart | ✅ | ✅ | ✅ |
+| Focus-Handling | ✅ | ❌ (Wayland blockiert) | ❌ (Systray-Konflikt) |
+| Hotkey | ✅ | ✅ | ✅ |
+
+**Linux**: Wayland blockiert Focus-Stealing aus Sicherheitsgründen by-design. X11 würde funktionieren, ist aber nicht implementiert.
+
+**macOS**: Focus-Handling kollidiert mit der Systray-Library (`getlantern/systray`), da beide `AppDelegate` definieren.
 
 ## Technologie-Stack
 
