@@ -30,25 +30,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev
 
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
       - name: Go mod verify
         run: go mod verify
 
       - name: Go vet
-        run: go vet ./...
+        run: go vet -tags webkit2_41 ./...
 
       - name: Go build
         run: go build -tags webkit2_41 -v ./...
 
       - name: Go test
         run: go test -tags webkit2_41 -v ./...
-
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: frontend
-
-      - name: Frontend type check
-        run: npm run build
-        working-directory: frontend
 
   build-windows:
     runs-on: windows-latest
