@@ -15,13 +15,16 @@ jobs:
         include:
           - os: windows-latest
             platform: windows/amd64
-            artifact: QuickLaunch.exe
+            artifact_suffix: windows-amd64.exe
           - os: ubuntu-latest
             platform: linux/amd64
-            artifact: QuickLaunch
+            artifact_suffix: linux-amd64
           - os: macos-latest
-            platform: darwin/universal
-            artifact: QuickLaunch.app
+            platform: darwin/arm64
+            artifact_suffix: macos-arm64
+          - os: macos-13
+            platform: darwin/amd64
+            artifact_suffix: macos-amd64
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -63,28 +66,28 @@ jobs:
         run: wails build -platform ${{ matrix.platform }}
 
       - name: Rename artifact (Windows)
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
         run: |
           $version = "${{ github.ref_name }}"
-          Move-Item "build/bin/QuickLaunch.exe" "build/bin/QuickLaunch-$version-windows-amd64.exe"
+          Move-Item "build/bin/QuickLaunch.exe" "build/bin/QuickLaunch-$version-${{ matrix.artifact_suffix }}"
 
       - name: Rename artifact (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
         run: |
           version="${{ github.ref_name }}"
-          mv build/bin/QuickLaunch "build/bin/QuickLaunch-$version-linux-amd64"
+          mv build/bin/QuickLaunch "build/bin/QuickLaunch-$version-${{ matrix.artifact_suffix }}"
 
       - name: Package macOS app
-        if: matrix.os == 'macos-latest'
+        if: runner.os == 'macOS'
         run: |
           version="${{ github.ref_name }}"
           cd build/bin
-          zip -r "QuickLaunch-$version-macos-universal.zip" QuickLaunch.app
+          zip -r "QuickLaunch-$version-${{ matrix.artifact_suffix }}.zip" QuickLaunch.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}
+          name: build-${{ matrix.os }}-${{ matrix.platform }}
           path: build/bin/QuickLaunch-*
 
   release:
