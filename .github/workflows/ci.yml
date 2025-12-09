@@ -28,7 +28,7 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev libx11-dev xvfb
 
       - name: Install frontend dependencies
         run: npm ci
@@ -48,7 +48,7 @@ jobs:
         run: go build -tags webkit2_41 -v ./...
 
       - name: Go test
-        run: go test -tags webkit2_41 -v ./...
+        run: xvfb-run go test -tags webkit2_41 -v ./...
 
   build-windows:
     runs-on: windows-latest
