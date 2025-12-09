@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "QuickLaunch",
+  "outputfilename": "QuickLaunch",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Pascal Helmer",
+    "email": "pascal@pascalhelmer.de"
+  },
+  "info": {
+    "companyName": "QuickLaunch",
+    "productName": "QuickLaunch",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright 2025 Pascal Helmer",
+    "comments": "Ein minimalistischer Desktop-Launcher für Windows"
+  }
+}

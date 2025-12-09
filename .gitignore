@@ -1,0 +1,37 @@
+# Build output
+build/bin/
+*.exe
+*.app
+*.dmg
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Go
+*.test
+*.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+
+# Wails
+wails.json.bak
