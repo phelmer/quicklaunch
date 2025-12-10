@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -315,7 +317,34 @@ func (a *App) RestartApp() {
 	if a.config != nil {
 		a.config.Save()
 	}
-	// Quit and let the user restart manually
-	// (Wails doesn't have built-in restart functionality)
-	runtime.Quit(a.ctx)
+
+	// Get current executable path
+	exe, err := os.Executable()
+	if err != nil {
+		// Fallback to just quitting
+		runtime.Quit(a.ctx)
+		return
+	}
+
+	// Unregister hotkey before restart
+	if a.hk != nil {
+		a.hk.Unregister()
+	}
+
+	// Stop focus monitor
+	if a.focusMonitor != nil {
+		a.focusMonitor.Stop()
+	}
+
+	// Quit tray
+	if a.trayManager != nil {
+		a.trayManager.Quit()
+	}
+
+	// Start new instance
+	cmd := exec.Command(exe)
+	cmd.Start()
+
+	// Exit current instance
+	os.Exit(0)
 }
