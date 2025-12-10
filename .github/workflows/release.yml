@@ -54,13 +54,18 @@ jobs:
 
       - name: Build (Windows/macOS)
         if: matrix.os != 'ubuntu-latest'
-        run: wails build -platform ${{ matrix.platform }}
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          $commit = "${{ github.sha }}".Substring(0, 7)
+          $buildTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+          $ldflags = "-X quicklaunch/internal/version.Version=$version -X quicklaunch/internal/version.Commit=$commit -X quicklaunch/internal/version.BuildTime=$buildTime"
+          wails build -platform ${{ matrix.platform }} -ldflags "$ldflags"
 
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
         run: |
-          $version = "${{ github.ref_name }}"
-          Move-Item "build/bin/QuickLaunch.exe" "build/bin/QuickLaunch-$version-${{ matrix.artifact_suffix }}"
+          # Rename to go-selfupdate format (QuickLaunch_windows_amd64.exe)
+          Move-Item "build/bin/QuickLaunch.exe" "build/bin/QuickLaunch_windows_amd64.exe"
 
       - name: Rename artifact (Linux)
         if: runner.os == 'Linux'
@@ -79,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: build-${{ matrix.os }}
-          path: build/bin/QuickLaunch-*
+          path: build/bin/QuickLaunch_*
 
   release:
     needs: build

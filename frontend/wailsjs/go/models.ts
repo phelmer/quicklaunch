@@ -41,6 +41,7 @@ export namespace config {
 	    animation: boolean;
 	    blur: boolean;
 	    startWithWindows: boolean;
+	    checkForUpdatesOnStartup: boolean;
 	    recentFoldersLimit: number;
 	    recentFolders: string[];
 	    tiles: Tile[];
@@ -57,6 +58,7 @@ export namespace config {
 	        this.animation = source["animation"];
 	        this.blur = source["blur"];
 	        this.startWithWindows = source["startWithWindows"];
+	        this.checkForUpdatesOnStartup = source["checkForUpdatesOnStartup"];
 	        this.recentFoldersLimit = source["recentFoldersLimit"];
 	        this.recentFolders = source["recentFolders"];
 	        this.tiles = this.convertValues(source["tiles"], Tile);
@@ -95,6 +97,56 @@ export namespace tray {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	
+	    }
+	}
+
+}
+
+export namespace updater {
+	
+	export class UpdateInfo {
+	    available: boolean;
+	    currentVersion: string;
+	    latestVersion: string;
+	    releaseUrl: string;
+	    releaseNote: string;
+	    assetUrl: string;
+	    assetSize: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.available = source["available"];
+	        this.currentVersion = source["currentVersion"];
+	        this.latestVersion = source["latestVersion"];
+	        this.releaseUrl = source["releaseUrl"];
+	        this.releaseNote = source["releaseNote"];
+	        this.assetUrl = source["assetUrl"];
+	        this.assetSize = source["assetSize"];
+	    }
+	}
+
+}
+
+export namespace version {
+	
+	export class Info {
+	    version: string;
+	    commit: string;
+	    buildTime: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Info(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.version = source["version"];
+	        this.commit = source["commit"];
+	        this.buildTime = source["buildTime"];
 	    }
 	}
 
