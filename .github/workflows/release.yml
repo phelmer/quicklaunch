@@ -22,9 +22,6 @@ jobs:
           - os: macos-latest
             platform: darwin/arm64
             artifact_suffix: macos-arm64
-          - os: macos-15-large
-            platform: darwin/amd64
-            artifact_suffix: macos-amd64
 
     runs-on: ${{ matrix.os }}
     steps:
