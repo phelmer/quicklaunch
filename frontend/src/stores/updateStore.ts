@@ -37,6 +37,7 @@ interface UpdateStore {
   downloadUpdate: () => Promise<void>
   restartApp: () => void
   resetError: () => void
+  setUpdateAvailable: (info: UpdateInfo) => void
 }
 
 export const useUpdateStore = create<UpdateStore>((set) => ({
@@ -106,5 +107,14 @@ export const useUpdateStore = create<UpdateStore>((set) => ({
   // Reset error state
   resetError: () => {
     set({ status: 'idle', error: null })
+  },
+
+  // Set update available from backend event
+  setUpdateAvailable: (info: UpdateInfo) => {
+    set({
+      status: 'available',
+      updateInfo: info,
+      currentVersion: info.currentVersion,
+    })
   },
 }))

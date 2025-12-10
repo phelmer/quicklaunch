@@ -5,6 +5,7 @@ go 1.24.6
 toolchain go1.24.11
 
 require (
+	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3
 	github.com/creativeprojects/go-selfupdate v1.5.1
 	github.com/getlantern/systray v1.2.2
 	github.com/wailsapp/wails/v2 v2.11.0

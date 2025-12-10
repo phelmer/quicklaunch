@@ -12,6 +12,7 @@ import (
 
 	"quicklaunch/internal/config"
 	"quicklaunch/internal/focus"
+	"quicklaunch/internal/notification"
 	"quicklaunch/internal/tray"
 	"quicklaunch/internal/updater"
 	"quicklaunch/internal/version"
@@ -26,6 +27,7 @@ type App struct {
 	config       *config.Config
 	focusMonitor *focus.Monitor
 	updater      *updater.Updater
+	toast        *notification.Toast
 }
 
 // NewApp creates a new App application struct
@@ -36,6 +38,7 @@ func NewApp() *App {
 	return &App{
 		config:  cfg,
 		updater: updater.New(),
+		toast:   notification.NewToast(),
 	}
 }
 
@@ -59,6 +62,51 @@ func (a *App) startup(ctx context.Context) {
 			a.HidePanel()
 		}
 	})
+
+	// Initialize toast notifications
+	a.initializeToast()
+
+	// Check for updates on startup if enabled
+	if a.config != nil && a.config.CheckForUpdatesOnStartup {
+		go a.checkForUpdateOnStartup()
+	}
+}
+
+// initializeToast sets up Windows toast notifications
+func (a *App) initializeToast() {
+	exe, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	// Initialize toast with callback
+	if err := a.toast.Initialize(exe, ""); err != nil {
+		println("Failed to initialize toast:", err.Error())
+		return
+	}
+
+	// Set callback for when user clicks on toast
+	a.toast.SetCallback(func(action string) {
+		if action == "show-update" {
+			a.ShowPanelWithView("settings")
+		}
+	})
+}
+
+// checkForUpdateOnStartup checks for updates in the background
+func (a *App) checkForUpdateOnStartup() {
+	// Small delay to let the app fully initialize
+	time.Sleep(3 * time.Second)
+
+	info, err := a.updater.CheckForUpdate(a.ctx)
+	if err != nil {
+		return
+	}
+
+	if info.Available {
+		// Show toast notification - clicking opens settings where user can check again
+		a.toast.ShowUpdateAvailable(info.CurrentVer, info.LatestVer)
+	}
 }
 
 // domReady is called when the DOM is ready
@@ -164,6 +212,31 @@ func (a *App) HidePanel() {
 	a.isVisible = false
 	runtime.EventsEmit(a.ctx, "panel:hide")
 	runtime.WindowHide(a.ctx)
+}
+
+// ShowPanelWithView shows the panel and navigates to a specific view
+func (a *App) ShowPanelWithView(view string) {
+	a.isVisible = true
+	a.positionWindow()
+	runtime.WindowShow(a.ctx)
+	runtime.WindowSetAlwaysOnTop(a.ctx, true)
+
+	// Delay to allow window to fully render
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+
+		// Bring window to foreground and set focus
+		focus.SetForeground()
+
+		// Emit event to navigate to specific view
+		runtime.EventsEmit(a.ctx, "panel:show:view", view)
+
+		// Start monitoring for focus loss after focus is established
+		time.Sleep(100 * time.Millisecond)
+		if a.focusMonitor != nil {
+			a.focusMonitor.Start()
+		}
+	}()
 }
 
 // IsVisible returns the current visibility state
@@ -304,6 +377,14 @@ func (a *App) GetVersionInfo() version.Info {
 // CheckForUpdate checks if a new version is available
 func (a *App) CheckForUpdate() (*updater.UpdateInfo, error) {
 	return a.updater.CheckForUpdate(a.ctx)
+}
+
+// GetCheckForUpdatesOnStartup returns whether auto-update check is enabled
+func (a *App) GetCheckForUpdatesOnStartup() bool {
+	if a.config != nil {
+		return a.config.CheckForUpdatesOnStartup
+	}
+	return true
 }
 
 // DownloadAndApplyUpdate downloads and applies the latest update

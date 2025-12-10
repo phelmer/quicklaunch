@@ -17,6 +17,8 @@ export function ExecuteActionWithPath(arg1:string,arg2:string,arg3:string):Promi
 
 export function GetAutoStartEnabled():Promise<boolean>;
 
+export function GetCheckForUpdatesOnStartup():Promise<boolean>;
+
 export function GetConfig():Promise<config.Config>;
 
 export function GetTiles():Promise<Array<config.Tile>>;
@@ -46,6 +48,8 @@ export function SetAutoStart(arg1:boolean):Promise<void>;
 export function SetTrayManager(arg1:tray.Manager):Promise<void>;
 
 export function ShowPanel():Promise<void>;
+
+export function ShowPanelWithView(arg1:string):Promise<void>;
 
 export function TogglePanel():Promise<void>;
 

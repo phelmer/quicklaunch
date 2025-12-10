@@ -26,6 +26,10 @@ export function GetAutoStartEnabled() {
   return window['go']['main']['App']['GetAutoStartEnabled']();
 }
 
+export function GetCheckForUpdatesOnStartup() {
+  return window['go']['main']['App']['GetCheckForUpdatesOnStartup']();
+}
+
 export function GetConfig() {
   return window['go']['main']['App']['GetConfig']();
 }
@@ -84,6 +88,10 @@ export function SetTrayManager(arg1) {
 
 export function ShowPanel() {
   return window['go']['main']['App']['ShowPanel']();
+}
+
+export function ShowPanelWithView(arg1) {
+  return window['go']['main']['App']['ShowPanelWithView'](arg1);
 }
 
 export function TogglePanel() {
