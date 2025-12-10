@@ -20,7 +20,6 @@ Releases für Windows, Linux und macOS sind auf der [Releases-Seite](../../relea
 | Windows | `QuickLaunch-vX.X.X-windows-amd64.exe` |
 | Linux | `QuickLaunch-vX.X.X-linux-amd64` |
 | macOS (Apple Silicon) | `QuickLaunch-vX.X.X-macos-arm64.zip` |
-| macOS (Intel) | `QuickLaunch-vX.X.X-macos-amd64.zip` |
 
 ## Tastenkürzel
 
