@@ -1,10 +1,11 @@
 module quicklaunch
 
-go 1.24.0
+go 1.24.6
 
-toolchain go1.24.3
+toolchain go1.24.11
 
 require (
+	github.com/creativeprojects/go-selfupdate v1.5.1
 	github.com/getlantern/systray v1.2.2
 	github.com/wailsapp/wails/v2 v2.11.0
 	golang.design/x/hotkey v0.4.1
@@ -12,18 +13,28 @@ require (
 )
 
 require (
+	code.gitea.io/sdk/gitea v0.22.0 // indirect
+	github.com/42wim/httpsig v1.2.3 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/davidmz/go-pageant v1.0.2 // indirect
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect
 	github.com/getlantern/errors v0.0.0-20190325191628-abdb3e3e36f7 // indirect
 	github.com/getlantern/golog v0.0.0-20190830074920-4ef2e798c2d7 // indirect
 	github.com/getlantern/hex v0.0.0-20190417191902-c6586a6fe0b7 // indirect
 	github.com/getlantern/hidden v0.0.0-20190325191715-f02dbb02be55 // indirect
 	github.com/getlantern/ops v0.0.0-20190325191751-d70cb0d6f85f // indirect
+	github.com/go-fed/httpsig v1.1.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
+	github.com/google/go-github/v30 v30.1.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/labstack/echo/v4 v4.13.3 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
@@ -39,12 +50,17 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/lo v1.49.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.8 // indirect
+	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.22 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
+	github.com/xanzy/go-gitlab v0.115.0 // indirect
 	golang.design/x/mainthread v0.3.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/time v0.12.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

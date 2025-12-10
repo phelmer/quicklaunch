@@ -24,15 +24,16 @@ type Tile struct {
 
 // Config represents the application configuration
 type Config struct {
-	Theme              string   `json:"theme"`
-	Hotkey             string   `json:"hotkey"`
-	Position           string   `json:"position"`
-	Animation          bool     `json:"animation"`
-	Blur               bool     `json:"blur"`
-	StartWithWindows   bool     `json:"startWithWindows"`
-	RecentFoldersLimit int      `json:"recentFoldersLimit"`
-	RecentFolders      []string `json:"recentFolders"`
-	Tiles              []Tile   `json:"tiles"`
+	Theme                    string   `json:"theme"`
+	Hotkey                   string   `json:"hotkey"`
+	Position                 string   `json:"position"`
+	Animation                bool     `json:"animation"`
+	Blur                     bool     `json:"blur"`
+	StartWithWindows         bool     `json:"startWithWindows"`
+	CheckForUpdatesOnStartup bool     `json:"checkForUpdatesOnStartup"`
+	RecentFoldersLimit       int      `json:"recentFoldersLimit"`
+	RecentFolders            []string `json:"recentFolders"`
+	Tiles                    []Tile   `json:"tiles"`
 }
 
 // GetConfigDir returns the configuration directory path
@@ -100,14 +101,15 @@ func (c *Config) Save() error {
 // DefaultConfig returns the default configuration
 func DefaultConfig() *Config {
 	return &Config{
-		Theme:              "dark",
-		Hotkey:             "Ctrl+Space",
-		Position:           "left",
-		Animation:          true,
-		Blur:               true,
-		StartWithWindows:   false,
-		RecentFoldersLimit: 5,
-		RecentFolders:      []string{},
-		Tiles:              []Tile{},
+		Theme:                    "dark",
+		Hotkey:                   "Ctrl+Space",
+		Position:                 "left",
+		Animation:                true,
+		Blur:                     true,
+		StartWithWindows:         false,
+		CheckForUpdatesOnStartup: true,
+		RecentFoldersLimit:       5,
+		RecentFolders:            []string{},
+		Tiles:                    []Tile{},
 	}
 }

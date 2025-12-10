@@ -11,6 +11,8 @@ import (
 	"quicklaunch/internal/config"
 	"quicklaunch/internal/focus"
 	"quicklaunch/internal/tray"
+	"quicklaunch/internal/updater"
+	"quicklaunch/internal/version"
 )
 
 // App struct
@@ -21,6 +23,7 @@ type App struct {
 	trayManager  *tray.Manager
 	config       *config.Config
 	focusMonitor *focus.Monitor
+	updater      *updater.Updater
 }
 
 // NewApp creates a new App application struct
@@ -29,7 +32,8 @@ func NewApp() *App {
 	cfg, _ := config.Load()
 
 	return &App{
-		config: cfg,
+		config:  cfg,
+		updater: updater.New(),
 	}
 }
 
@@ -279,4 +283,39 @@ func (a *App) RemoveTile(id string) error {
 		}
 	}
 	return nil
+}
+
+// --- Version Methods ---
+
+// GetVersion returns the current application version
+func (a *App) GetVersion() string {
+	return version.Version
+}
+
+// GetVersionInfo returns detailed version information
+func (a *App) GetVersionInfo() version.Info {
+	return version.GetInfo()
+}
+
+// --- Update Methods ---
+
+// CheckForUpdate checks if a new version is available
+func (a *App) CheckForUpdate() (*updater.UpdateInfo, error) {
+	return a.updater.CheckForUpdate(a.ctx)
+}
+
+// DownloadAndApplyUpdate downloads and applies the latest update
+func (a *App) DownloadAndApplyUpdate() error {
+	return a.updater.DownloadAndApply(a.ctx)
+}
+
+// RestartApp restarts the application after an update
+func (a *App) RestartApp() {
+	// Save config before restart
+	if a.config != nil {
+		a.config.Save()
+	}
+	// Quit and let the user restart manually
+	// (Wails doesn't have built-in restart functionality)
+	runtime.Quit(a.ctx)
 }

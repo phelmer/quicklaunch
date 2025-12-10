@@ -6,6 +6,14 @@ export function AddTile(arg1) {
   return window['go']['main']['App']['AddTile'](arg1);
 }
 
+export function CheckForUpdate() {
+  return window['go']['main']['App']['CheckForUpdate']();
+}
+
+export function DownloadAndApplyUpdate() {
+  return window['go']['main']['App']['DownloadAndApplyUpdate']();
+}
+
 export function ExecuteAction(arg1, arg2) {
   return window['go']['main']['App']['ExecuteAction'](arg1, arg2);
 }
@@ -26,6 +34,14 @@ export function GetTiles() {
   return window['go']['main']['App']['GetTiles']();
 }
 
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
+}
+
+export function GetVersionInfo() {
+  return window['go']['main']['App']['GetVersionInfo']();
+}
+
 export function HidePanel() {
   return window['go']['main']['App']['HidePanel']();
 }
@@ -44,6 +60,10 @@ export function QuitApp() {
 
 export function RemoveTile(arg1) {
   return window['go']['main']['App']['RemoveTile'](arg1);
+}
+
+export function RestartApp() {
+  return window['go']['main']['App']['RestartApp']();
 }
 
 export function SaveConfig() {
