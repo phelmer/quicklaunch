@@ -16,12 +16,6 @@ jobs:
           - os: windows-latest
             platform: windows/amd64
             artifact_suffix: windows-amd64.exe
-          - os: ubuntu-latest
-            platform: linux/amd64
-            artifact_suffix: linux-amd64
-          - os: macos-latest
-            platform: darwin/arm64
-            artifact_suffix: macos-arm64
 
     runs-on: ${{ matrix.os }}
     steps:
