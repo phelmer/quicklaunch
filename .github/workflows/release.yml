@@ -85,7 +85,7 @@ jobs:
           zip -r "QuickLaunch-$version-${{ matrix.artifact_suffix }}.zip" QuickLaunch.app
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-${{ matrix.os }}-${{ matrix.platform }}
           path: build/bin/QuickLaunch-*
