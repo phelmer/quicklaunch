@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { useAppStore } from '@/stores/appStore'
 import { useUpdateStore } from '@/stores/updateStore'
 import { useTheme } from '@/hooks/useTheme'
-import { GetAutoStartEnabled, SetAutoStart } from '../../wailsjs/go/main/App'
+import { GetAutoStartEnabled, SetAutoStart, GetCheckForUpdatesOnStartup } from '../../wailsjs/go/main/App'
 
 export function SettingsPanel() {
   const settings = useSettingsStore()
@@ -28,11 +28,19 @@ export function SettingsPanel() {
     resetError,
   } = useUpdateStore()
 
-  // Load autostart state and version from backend
+  // Load autostart state, version, and check for updates if enabled
   useEffect(() => {
     GetAutoStartEnabled().then(setAutoStartState).catch(console.error)
     loadVersion()
-  }, [loadVersion])
+
+    // Check for updates automatically if setting is enabled
+    GetCheckForUpdatesOnStartup().then((enabled) => {
+      setCheckOnStartup(enabled)
+      if (enabled && updateStatus === 'idle') {
+        checkForUpdate()
+      }
+    }).catch(console.error)
+  }, [loadVersion, checkForUpdate, updateStatus])
 
   // Focus first element on mount
   useEffect(() => {
@@ -269,7 +277,7 @@ export function SettingsPanel() {
         </div>
 
         {/* Update Section */}
-        <div className="border-t border-[var(--border-muted)]" style={{ paddingTop: '16px' }}>
+        <div id="update-section" className="border-t border-[var(--border-muted)]" style={{ paddingTop: '16px' }}>
           <label
             className="flex items-center text-xs font-medium text-[var(--text-secondary)]"
             style={{ gap: '8px', marginBottom: '12px' }}
