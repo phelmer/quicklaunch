@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build:*)",
+      "Bash(wails build:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: implement proper app restart after update\n\nPreviously, RestartApp() only called runtime.Quit() which closed the\nwindow but left the app running in systray. Now it properly:\n- Saves config\n- Unregisters hotkey\n- Stops focus monitor\n- Quits systray\n- Starts new instance via exec.Command\n- Exits current instance with os.Exit(0)\nEOF\n)\")"
+    ]
+  }
+}
