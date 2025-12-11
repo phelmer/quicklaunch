@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Folder, Clock, FolderOpen } from 'lucide-react'
 import { useAppStore } from '@/stores/appStore'
@@ -14,7 +15,7 @@ interface SubMenuProps {
 }
 
 export function SubMenu({ tileId, onClose }: SubMenuProps) {
-  const { selectedSubMenuIndex } = useAppStore()
+  const { selectedSubMenuIndex, setSelectedSubMenuIndex } = useAppStore()
   const { tiles, recentItems, addRecentItem } = useTilesStore()
 
   const tile = tiles.find((t) => t.id === tileId)
@@ -24,6 +25,8 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
   const recentFolders = recentItems
     .filter((r) => r.tileId === tileId)
     .slice(0, 5)
+
+  const totalMenuItems = 1 + recentFolders.length
 
   const handleSelectFolder = async () => {
     try {
@@ -56,6 +59,44 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
       console.error('Error executing action:', err)
     }
   }
+
+  // Keyboard navigation for SubMenu
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault()
+          setSelectedSubMenuIndex(Math.max(0, selectedSubMenuIndex - 1))
+          break
+
+        case 'ArrowDown':
+          e.preventDefault()
+          setSelectedSubMenuIndex(Math.min(totalMenuItems - 1, selectedSubMenuIndex + 1))
+          break
+
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (selectedSubMenuIndex === 0) {
+            handleSelectFolder()
+          } else {
+            const folder = recentFolders[selectedSubMenuIndex - 1]
+            if (folder) handleRecentFolder(folder.path, folder.name)
+          }
+          break
+
+        // ESC is already handled by useHotkeys
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedSubMenuIndex, totalMenuItems, recentFolders, setSelectedSubMenuIndex])
+
+  // Reset index when SubMenu opens
+  useEffect(() => {
+    setSelectedSubMenuIndex(0)
+  }, [setSelectedSubMenuIndex])
 
   return (
     <motion.div
