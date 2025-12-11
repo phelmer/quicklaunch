@@ -4,6 +4,13 @@ export type ActionType = 'app' | 'folder' | 'url' | 'powershell'
 // SubMenu types
 export type SubMenuType = 'recent-folders' | 'custom'
 
+// Recent item for submenus (stored per tile)
+export interface RecentItem {
+  path: string
+  name: string
+  timestamp: string
+}
+
 // Tile configuration
 export interface Tile {
   id: string
@@ -15,17 +22,10 @@ export interface Tile {
   workDir?: string
   hasSubMenu?: boolean
   subMenuType?: SubMenuType
+  subMenuItems?: RecentItem[] // Persisted recent items per tile
   order: number
   enabled: boolean
   color?: string
-}
-
-// Recent item for submenus
-export interface RecentItem {
-  tileId: string
-  path: string
-  name: string
-  timestamp: string
 }
 
 // SubMenu item

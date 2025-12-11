@@ -360,6 +360,78 @@ func (a *App) RemoveTile(id string) error {
 	return nil
 }
 
+// --- Recent Items Methods ---
+
+// AddRecentItem adds a recent item to a tile's submenu
+func (a *App) AddRecentItem(tileID string, item config.RecentItem) error {
+	if a.config == nil {
+		return nil
+	}
+
+	for i, t := range a.config.Tiles {
+		if t.ID == tileID {
+			// Remove duplicate if exists
+			filtered := make([]config.RecentItem, 0)
+			for _, existing := range t.SubMenuItems {
+				if existing.Path != item.Path {
+					filtered = append(filtered, existing)
+				}
+			}
+
+			// Add new item at the beginning
+			a.config.Tiles[i].SubMenuItems = append([]config.RecentItem{item}, filtered...)
+
+			// Limit to RecentFoldersLimit
+			limit := a.config.RecentFoldersLimit
+			if limit <= 0 {
+				limit = 5
+			}
+			if len(a.config.Tiles[i].SubMenuItems) > limit {
+				a.config.Tiles[i].SubMenuItems = a.config.Tiles[i].SubMenuItems[:limit]
+			}
+
+			return a.config.Save()
+		}
+	}
+	return nil
+}
+
+// GetRecentItems returns recent items for a specific tile
+func (a *App) GetRecentItems(tileID string) []config.RecentItem {
+	if a.config != nil {
+		for _, t := range a.config.Tiles {
+			if t.ID == tileID {
+				return t.SubMenuItems
+			}
+		}
+	}
+	return []config.RecentItem{}
+}
+
+// ClearRecentItems clears recent items for a tile (or all tiles if tileID is empty)
+func (a *App) ClearRecentItems(tileID string) error {
+	if a.config == nil {
+		return nil
+	}
+
+	if tileID == "" {
+		// Clear all
+		for i := range a.config.Tiles {
+			a.config.Tiles[i].SubMenuItems = []config.RecentItem{}
+		}
+	} else {
+		// Clear specific tile
+		for i, t := range a.config.Tiles {
+			if t.ID == tileID {
+				a.config.Tiles[i].SubMenuItems = []config.RecentItem{}
+				break
+			}
+		}
+	}
+
+	return a.config.Save()
+}
+
 // --- Version Methods ---
 
 // GetVersion returns the current application version

@@ -6,20 +6,28 @@ import (
 	"path/filepath"
 )
 
+// RecentItem represents a recent submenu item
+type RecentItem struct {
+	Path      string `json:"path"`
+	Name      string `json:"name"`
+	Timestamp string `json:"timestamp"`
+}
+
 // Tile represents a launcher tile
 type Tile struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Icon        string   `json:"icon"`
-	Action      string   `json:"action"`
-	Target      string   `json:"target"`
-	Args        []string `json:"args,omitempty"`
-	WorkDir     string   `json:"workDir,omitempty"`
-	HasSubMenu  bool     `json:"hasSubMenu"`
-	SubMenuType string   `json:"subMenuType,omitempty"`
-	Order       int      `json:"order"`
-	Enabled     bool     `json:"enabled"`
-	Color       string   `json:"color,omitempty"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Icon         string       `json:"icon"`
+	Action       string       `json:"action"`
+	Target       string       `json:"target"`
+	Args         []string     `json:"args,omitempty"`
+	WorkDir      string       `json:"workDir,omitempty"`
+	HasSubMenu   bool         `json:"hasSubMenu"`
+	SubMenuType  string       `json:"subMenuType,omitempty"`
+	SubMenuItems []RecentItem `json:"subMenuItems,omitempty"`
+	Order        int          `json:"order"`
+	Enabled      bool         `json:"enabled"`
+	Color        string       `json:"color,omitempty"`
 }
 
 // Config represents the application configuration
