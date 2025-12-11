@@ -75,11 +75,13 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
         case 'Enter':
         case ' ':
           e.preventDefault()
-          if (selectedSubMenuIndex === 0) {
-            handleSelectFolder()
-          } else {
-            const folder = recentFolders[selectedSubMenuIndex - 1]
+          if (selectedSubMenuIndex < recentFolders.length) {
+            // Recent folder selected
+            const folder = recentFolders[selectedSubMenuIndex]
             if (folder) handleRecentFolder(folder.path, folder.name)
+          } else {
+            // "Neuen Ordner öffnen" button selected (last item)
+            handleSelectFolder()
           }
           break
 
@@ -123,28 +125,12 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto" style={{ padding: '16px' }}>
-        {/* Browse folder option */}
-        <button
-          onClick={handleSelectFolder}
-          className={`w-full flex items-center rounded-lg transition-colors
-            ${
-              selectedSubMenuIndex === 0
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'
-            }
-          `}
-          style={{ gap: '12px', padding: '12px' }}
-        >
-          <FolderOpen size={18} />
-          <span className="text-sm">Ordner auswählen...</span>
-        </button>
-
-        {/* Recent folders */}
+        {/* Recent folders (shown first) */}
         {recentFolders.length > 0 && (
           <>
             <div
               className="flex items-center"
-              style={{ gap: '8px', marginTop: '16px', marginBottom: '8px', paddingLeft: '4px' }}
+              style={{ gap: '8px', marginBottom: '8px', paddingLeft: '4px' }}
             >
               <Clock size={12} className="text-[var(--text-tertiary)]" />
               <span className="text-xs text-[var(--text-tertiary)]">Zuletzt verwendet</span>
@@ -157,7 +143,7 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
                   onClick={() => handleRecentFolder(item.path, item.name)}
                   className={`w-full flex items-center rounded-lg text-left transition-colors
                     ${
-                      selectedSubMenuIndex === index + 1
+                      selectedSubMenuIndex === index
                         ? 'bg-[var(--color-accent)] text-white'
                         : 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]'
                     }
@@ -169,7 +155,7 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
                     <p className="text-sm font-medium truncate">{item.name}</p>
                     <p
                       className={`text-xs truncate ${
-                        selectedSubMenuIndex === index + 1
+                        selectedSubMenuIndex === index
                           ? 'text-white/70'
                           : 'text-[var(--text-tertiary)]'
                       }`}
@@ -182,6 +168,22 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
             </div>
           </>
         )}
+
+        {/* Browse folder option (shown last) */}
+        <button
+          onClick={handleSelectFolder}
+          className={`w-full flex items-center rounded-lg transition-colors
+            ${
+              selectedSubMenuIndex === recentFolders.length
+                ? 'bg-[var(--color-accent)] text-white'
+                : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'
+            }
+          `}
+          style={{ gap: '12px', padding: '12px', marginTop: recentFolders.length > 0 ? '16px' : '0' }}
+        >
+          <FolderOpen size={18} />
+          <span className="text-sm">Neuen Ordner öffnen</span>
+        </button>
       </div>
     </motion.div>
   )
