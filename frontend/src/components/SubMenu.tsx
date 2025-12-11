@@ -16,15 +16,13 @@ interface SubMenuProps {
 
 export function SubMenu({ tileId, onClose }: SubMenuProps) {
   const { selectedSubMenuIndex, setSelectedSubMenuIndex } = useAppStore()
-  const { tiles, recentItems, addRecentItem } = useTilesStore()
+  const { tiles, addRecentItem } = useTilesStore()
 
   const tile = tiles.find((t) => t.id === tileId)
   if (!tile) return null
 
-  // Get recent folders for this tile
-  const recentFolders = recentItems
-    .filter((r) => r.tileId === tileId)
-    .slice(0, 5)
+  // Get recent folders for this tile (now stored directly on tile)
+  const recentFolders = tile.subMenuItems || []
 
   const totalMenuItems = 1 + recentFolders.length
 
@@ -32,9 +30,9 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
     try {
       const path = await OpenFolderDialog()
       if (path) {
-        // Add to recent
+        // Add to recent (async, persisted to backend)
         const name = path.split(/[\\/]/).pop() || path
-        addRecentItem({ tileId, path, name })
+        await addRecentItem(tileId, { path, name })
 
         // Execute action
         await ExecuteActionWithPath(tile.action, tile.target, path)
@@ -48,8 +46,8 @@ export function SubMenu({ tileId, onClose }: SubMenuProps) {
 
   const handleRecentFolder = async (path: string, name: string) => {
     try {
-      // Move to top of recent
-      addRecentItem({ tileId, path, name })
+      // Move to top of recent (async, persisted to backend)
+      await addRecentItem(tileId, { path, name })
 
       // Execute action
       await ExecuteActionWithPath(tile.action, tile.target, path)

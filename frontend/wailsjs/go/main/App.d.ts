@@ -5,9 +5,13 @@ import {updater} from '../models';
 import {version} from '../models';
 import {tray} from '../models';
 
+export function AddRecentItem(arg1:string,arg2:config.RecentItem):Promise<void>;
+
 export function AddTile(arg1:config.Tile):Promise<void>;
 
 export function CheckForUpdate():Promise<updater.UpdateInfo>;
+
+export function ClearRecentItems(arg1:string):Promise<void>;
 
 export function DownloadAndApplyUpdate():Promise<void>;
 
@@ -20,6 +24,8 @@ export function GetAutoStartEnabled():Promise<boolean>;
 export function GetCheckForUpdatesOnStartup():Promise<boolean>;
 
 export function GetConfig():Promise<config.Config>;
+
+export function GetRecentItems(arg1:string):Promise<Array<config.RecentItem>>;
 
 export function GetTiles():Promise<Array<config.Tile>>;
 

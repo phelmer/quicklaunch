@@ -6,12 +6,13 @@ import {
   AddTile as AddTileApi,
   UpdateTile as UpdateTileApi,
   RemoveTile as RemoveTileApi,
+  AddRecentItem as AddRecentItemApi,
+  ClearRecentItems as ClearRecentItemsApi,
 } from '../../wailsjs/go/main/App'
 import { config } from '../../wailsjs/go/models'
 
 interface TilesStore {
   tiles: Tile[]
-  recentItems: RecentItem[]
   isLoading: boolean
 
   loadTiles: () => Promise<void>
@@ -20,9 +21,9 @@ interface TilesStore {
   removeTile: (id: string) => Promise<void>
   reorderTiles: (fromIndex: number, toIndex: number) => Promise<void>
 
-  addRecentItem: (item: Omit<RecentItem, 'timestamp'>) => void
+  addRecentItem: (tileId: string, item: { path: string; name: string }) => Promise<void>
   getRecentForTile: (tileId: string) => RecentItem[]
-  clearRecent: (tileId?: string) => void
+  clearRecent: (tileId?: string) => Promise<void>
 }
 
 // Convert frontend Tile to Go config.Tile
@@ -37,6 +38,14 @@ function toConfigTile(tile: Tile): config.Tile {
     workDir: tile.workDir,
     hasSubMenu: tile.hasSubMenu ?? false,
     subMenuType: tile.subMenuType,
+    subMenuItems: tile.subMenuItems?.map(
+      (item) =>
+        new config.RecentItem({
+          path: item.path,
+          name: item.name,
+          timestamp: item.timestamp,
+        })
+    ),
     order: tile.order,
     enabled: tile.enabled,
     color: tile.color,
@@ -55,6 +64,11 @@ function fromConfigTile(t: config.Tile): Tile {
     workDir: t.workDir,
     hasSubMenu: t.hasSubMenu,
     subMenuType: t.subMenuType as Tile['subMenuType'],
+    subMenuItems: t.subMenuItems?.map((item) => ({
+      path: item.path,
+      name: item.name,
+      timestamp: item.timestamp,
+    })) || [],
     order: t.order,
     enabled: t.enabled,
     color: t.color,
@@ -63,7 +77,6 @@ function fromConfigTile(t: config.Tile): Tile {
 
 export const useTilesStore = create<TilesStore>((set, get) => ({
   tiles: [],
-  recentItems: [],
   isLoading: true,
 
   loadTiles: async () => {
@@ -126,31 +139,58 @@ export const useTilesStore = create<TilesStore>((set, get) => ({
     }
   },
 
-  // Recent items are still stored in memory (could be moved to Go later)
-  addRecentItem: (item) =>
-    set((state) => {
-      const filtered = state.recentItems.filter(
-        (r) => !(r.tileId === item.tileId && r.path === item.path)
-      )
-      const newItem: RecentItem = {
-        ...item,
-        timestamp: new Date().toISOString(),
-      }
-      return {
-        recentItems: [newItem, ...filtered].slice(0, 50),
-      }
-    }),
+  // Recent items are now persisted per tile via the backend
+  addRecentItem: async (tileId, item) => {
+    const newItem = new config.RecentItem({
+      path: item.path,
+      name: item.name,
+      timestamp: new Date().toISOString(),
+    })
 
-  getRecentForTile: (tileId) => {
-    return get()
-      .recentItems.filter((r) => r.tileId === tileId)
-      .slice(0, 5)
+    try {
+      await AddRecentItemApi(tileId, newItem)
+      // Optimistically update local state
+      set((state) => ({
+        tiles: state.tiles.map((t) =>
+          t.id === tileId
+            ? {
+                ...t,
+                subMenuItems: [
+                  { path: item.path, name: item.name, timestamp: newItem.timestamp },
+                  ...(t.subMenuItems || []).filter((i) => i.path !== item.path),
+                ].slice(0, 5),
+              }
+            : t
+        ),
+      }))
+    } catch (err) {
+      console.error('Failed to add recent item:', err)
+      // Reload tiles to get fresh state
+      get().loadTiles()
+    }
   },
 
-  clearRecent: (tileId) =>
-    set((state) => ({
-      recentItems: tileId
-        ? state.recentItems.filter((r) => r.tileId !== tileId)
-        : [],
-    })),
+  getRecentForTile: (tileId) => {
+    const tile = get().tiles.find((t) => t.id === tileId)
+    return tile?.subMenuItems || []
+  },
+
+  clearRecent: async (tileId) => {
+    try {
+      await ClearRecentItemsApi(tileId || '')
+      if (tileId) {
+        set((state) => ({
+          tiles: state.tiles.map((t) =>
+            t.id === tileId ? { ...t, subMenuItems: [] } : t
+          ),
+        }))
+      } else {
+        set((state) => ({
+          tiles: state.tiles.map((t) => ({ ...t, subMenuItems: [] })),
+        }))
+      }
+    } catch (err) {
+      console.error('Failed to clear recent items:', err)
+    }
+  },
 }))
