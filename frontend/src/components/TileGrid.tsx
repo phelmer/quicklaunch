@@ -61,7 +61,7 @@ export function TileGrid() {
     filteredTiles,
   })
 
-  // Handle keyboard navigation within grid (Arrow keys for search field focus)
+  // Handle keyboard navigation within grid (Arrow keys)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle when a tile is focused
@@ -69,18 +69,68 @@ export function TileGrid() {
       if (!activeElement?.hasAttribute('data-tile-index')) return
 
       const currentIndex = parseInt(activeElement.getAttribute('data-tile-index') || '0')
+      const columns = 3
+      const totalItems = filteredTiles.length
 
-      if (e.key === 'ArrowUp' && currentIndex < 3) {
-        // First row - focus search field
-        e.preventDefault()
-        const searchInput = document.querySelector<HTMLInputElement>('input[type="text"]')
-        searchInput?.focus()
+      if (totalItems === 0) return
+
+      const currentRow = Math.floor(currentIndex / columns)
+      const currentCol = currentIndex % columns
+
+      let newIndex = currentIndex
+
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault()
+          if (currentRow === 0) {
+            // Erste Reihe - zum Suchfeld
+            const searchInput = document.querySelector<HTMLInputElement>('input[type="text"]')
+            searchInput?.focus()
+            return
+          }
+          newIndex = currentIndex - columns
+          break
+
+        case 'ArrowDown':
+          e.preventDefault()
+          newIndex = currentIndex + columns
+          if (newIndex >= totalItems) return // Stopp am unteren Rand
+          break
+
+        case 'ArrowLeft':
+          e.preventDefault()
+          if (currentCol === 0) return // Stopp am linken Rand
+          newIndex = currentIndex - 1
+          break
+
+        case 'ArrowRight':
+          e.preventDefault()
+          if (currentCol === columns - 1 || currentIndex === totalItems - 1) return // Stopp am rechten Rand
+          newIndex = currentIndex + 1
+          break
+
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          const tile = filteredTiles[currentIndex]
+          if (tile) handleExecuteTile(tile.id)
+          return
+
+        default:
+          return
+      }
+
+      // Fokus auf neue Tile setzen
+      if (newIndex >= 0 && newIndex < totalItems && newIndex !== currentIndex) {
+        setSelectedTileIndex(newIndex)
+        const nextTile = document.querySelector<HTMLButtonElement>(`[data-tile-index="${newIndex}"]`)
+        nextTile?.focus()
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [filteredTiles, handleExecuteTile, setSelectedTileIndex])
 
   // Restore focus when returning to tiles view from overlay
   useEffect(() => {

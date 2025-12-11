@@ -55,6 +55,11 @@ export function TileEditor() {
     hasSubMenu: false,
   })
 
+  // State for icon grid navigation
+  const [selectedIconIndex, setSelectedIconIndex] = useState(() =>
+    Math.max(0, iconOptions.indexOf('Terminal'))
+  )
+
   // Load existing tile data when editing
   useEffect(() => {
     if (existingTile) {
@@ -65,8 +70,69 @@ export function TileEditor() {
         target: existingTile.target,
         hasSubMenu: existingTile.hasSubMenu || false,
       })
+      // Sync selectedIconIndex with existing icon
+      const index = iconOptions.indexOf(existingTile.icon)
+      if (index >= 0) setSelectedIconIndex(index)
     }
   }, [existingTile])
+
+  // Sync selectedIconIndex when form.icon changes
+  useEffect(() => {
+    const index = iconOptions.indexOf(form.icon)
+    if (index >= 0 && index !== selectedIconIndex) {
+      setSelectedIconIndex(index)
+    }
+  }, [form.icon])
+
+  // Icon grid keyboard navigation handler
+  const handleIconKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const columns = 6 // Approximate icons per row based on container width
+    const totalIcons = iconOptions.length
+    const currentCol = selectedIconIndex % columns
+
+    let newIndex = selectedIconIndex
+
+    switch (e.key) {
+      case 'ArrowUp':
+        e.preventDefault()
+        newIndex = selectedIconIndex - columns
+        if (newIndex < 0) return // Top edge
+        break
+
+      case 'ArrowDown':
+        e.preventDefault()
+        newIndex = selectedIconIndex + columns
+        if (newIndex >= totalIcons) return // Bottom edge
+        break
+
+      case 'ArrowLeft':
+        e.preventDefault()
+        if (currentCol === 0) return // Left edge
+        newIndex = selectedIconIndex - 1
+        break
+
+      case 'ArrowRight':
+        e.preventDefault()
+        if (selectedIconIndex >= totalIcons - 1) return // Last element
+        if (currentCol === columns - 1) return // Right column edge
+        newIndex = selectedIconIndex + 1
+        break
+
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        setForm({ ...form, icon: iconOptions[selectedIconIndex] })
+        return
+
+      default:
+        return
+    }
+
+    if (newIndex >= 0 && newIndex < totalIcons) {
+      setSelectedIconIndex(newIndex)
+      setForm({ ...form, icon: iconOptions[newIndex] })
+    }
+  }, [selectedIconIndex, form])
 
   // Focus first input on mount
   useEffect(() => {
@@ -181,8 +247,14 @@ export function TileEditor() {
           >
             Icon
           </label>
-          <div className="flex flex-wrap" style={{ gap: '6px' }}>
-            {iconOptions.map((icon) => {
+          <div
+            className="flex flex-wrap"
+            style={{ gap: '6px' }}
+            onKeyDown={handleIconKeyDown}
+            role="radiogroup"
+            aria-label="Icon auswählen"
+          >
+            {iconOptions.map((icon, index) => {
               const Icon = Icons[icon as keyof typeof Icons] as React.ComponentType<{
                 size?: number
                 className?: string
@@ -190,8 +262,13 @@ export function TileEditor() {
               return (
                 <button
                   key={icon}
-                  onClick={() => setForm({ ...form, icon })}
-                  className={`rounded-lg transition-colors ${
+                  tabIndex={index === selectedIconIndex ? 0 : -1}
+                  aria-label={icon}
+                  onClick={() => {
+                    setSelectedIconIndex(index)
+                    setForm({ ...form, icon })
+                  }}
+                  className={`rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                     form.icon === icon
                       ? 'bg-[var(--color-accent)] text-white'
                       : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
