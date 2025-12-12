@@ -106,6 +106,10 @@ export function ShowPanelWithView(arg1) {
   return window['go']['main']['App']['ShowPanelWithView'](arg1);
 }
 
+export function ShowUpdateReadyNotification(arg1) {
+  return window['go']['main']['App']['ShowUpdateReadyNotification'](arg1);
+}
+
 export function TogglePanel() {
   return window['go']['main']['App']['TogglePanel']();
 }

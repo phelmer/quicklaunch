@@ -71,3 +71,22 @@ func (t *Toast) ShowUpdateAvailable(currentVersion, newVersion string) error {
 
 	return wintoast.Push(appID, xml)
 }
+
+// ShowUpdateReady shows a toast notification when update is ready to install
+func (t *Toast) ShowUpdateReady(newVersion string) error {
+	xml := fmt.Sprintf(`
+<toast launch="show-update" activationType="foreground">
+    <visual>
+        <binding template="ToastGeneric">
+            <text>Update bereit</text>
+            <text>QuickLaunch %s wurde heruntergeladen und ist bereit zur Installation.</text>
+        </binding>
+    </visual>
+    <actions>
+        <action content="Jetzt neu starten" arguments="restart-app" activationType="foreground"/>
+        <action content="Später" arguments="dismiss" activationType="system"/>
+    </actions>
+</toast>`, newVersion)
+
+	return wintoast.Push(appID, xml)
+}
