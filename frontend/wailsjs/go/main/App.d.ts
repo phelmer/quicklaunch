@@ -57,6 +57,8 @@ export function ShowPanel():Promise<void>;
 
 export function ShowPanelWithView(arg1:string):Promise<void>;
 
+export function ShowUpdateReadyNotification(arg1:string):Promise<void>;
+
 export function TogglePanel():Promise<void>;
 
 export function UpdateConfig(arg1:string,arg2:string,arg3:boolean,arg4:boolean,arg5:number):Promise<void>;

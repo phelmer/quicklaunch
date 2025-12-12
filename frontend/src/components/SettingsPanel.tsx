@@ -288,17 +288,19 @@ export function SettingsPanel() {
           {/* Update Status Display */}
           {updateStatus === 'error' && updateError && (
             <div
-              className="flex items-center bg-red-500/10 text-red-400 rounded-lg"
-              style={{ gap: '8px', padding: '10px', marginBottom: '12px' }}
+              className="bg-red-500/10 text-red-400 rounded-lg"
+              style={{ padding: '10px', marginBottom: '12px' }}
             >
-              <AlertCircle size={14} />
-              <span className="text-xs">{updateError}</span>
-              <button
-                onClick={resetError}
-                className="ml-auto text-xs underline hover:no-underline"
-              >
-                Schließen
-              </button>
+              <div className="flex items-start" style={{ gap: '8px' }}>
+                <AlertCircle size={14} className="shrink-0" style={{ marginTop: '1px' }} />
+                <span className="text-xs flex-1">{updateError}</span>
+                <button
+                  onClick={resetError}
+                  className="shrink-0 text-xs underline hover:no-underline"
+                >
+                  Schließen
+                </button>
+              </div>
             </div>
           )}
 
@@ -344,7 +346,7 @@ export function SettingsPanel() {
                 style={{ gap: '6px', padding: '10px' }}
               >
                 <Download size={12} />
-                Update herunterladen
+                Update installieren
               </button>
             ) : updateStatus === 'downloading' ? (
               <button
@@ -353,7 +355,7 @@ export function SettingsPanel() {
                 style={{ gap: '6px', padding: '10px' }}
               >
                 <RefreshCw size={12} className="animate-spin" />
-                Lädt herunter...
+                Installiere...
               </button>
             ) : (
               <button

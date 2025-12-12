@@ -4,7 +4,38 @@ import {
   CheckForUpdate,
   DownloadAndApplyUpdate,
   RestartApp,
+  ShowUpdateReadyNotification,
 } from '../../wailsjs/go/main/App'
+import { useAppStore } from './appStore'
+
+// Simplify error messages for user display
+function simplifyErrorMessage(rawMessage: string, fallback: string): string {
+  if (!rawMessage) return fallback
+
+  const lower = rawMessage.toLowerCase()
+
+  // Rate limit errors
+  if (lower.includes('rate limit') || lower.includes('api rate')) {
+    return 'Zu viele Anfragen. Bitte später erneut versuchen.'
+  }
+
+  // Network errors
+  if (lower.includes('network') || lower.includes('connection') || lower.includes('timeout')) {
+    return 'Netzwerkfehler. Bitte Internetverbindung prüfen.'
+  }
+
+  // No update available
+  if (lower.includes('no update available')) {
+    return 'Kein Update verfügbar.'
+  }
+
+  // Generic fallback - truncate long messages
+  if (rawMessage.length > 50) {
+    return fallback
+  }
+
+  return rawMessage
+}
 
 export interface UpdateInfo {
   available: boolean
@@ -40,7 +71,7 @@ interface UpdateStore {
   setUpdateAvailable: (info: UpdateInfo) => void
 }
 
-export const useUpdateStore = create<UpdateStore>((set) => ({
+export const useUpdateStore = create<UpdateStore>((set, get) => ({
   // Initial state
   status: 'idle',
   currentVersion: 'dev',
@@ -82,7 +113,9 @@ export const useUpdateStore = create<UpdateStore>((set) => ({
         })
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Update-Prüfung fehlgeschlagen'
+      // Wails returns errors as strings, not Error objects
+      const rawMessage = typeof err === 'string' ? err : (err instanceof Error ? err.message : '')
+      const message = simplifyErrorMessage(rawMessage, 'Update-Prüfung fehlgeschlagen')
       set({ status: 'error', error: message })
     }
   },
@@ -93,8 +126,21 @@ export const useUpdateStore = create<UpdateStore>((set) => ({
     try {
       await DownloadAndApplyUpdate()
       set({ status: 'ready' })
+
+      // Show notification only if not in settings view
+      const appState = useAppStore.getState()
+      const isInSettings = appState.isOpen && appState.view === 'settings'
+
+      if (!isInSettings) {
+        const { updateInfo } = get()
+        if (updateInfo?.latestVersion) {
+          await ShowUpdateReadyNotification(updateInfo.latestVersion)
+        }
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Download fehlgeschlagen'
+      // Wails returns errors as strings, not Error objects
+      const rawMessage = typeof err === 'string' ? err : (err instanceof Error ? err.message : '')
+      const message = simplifyErrorMessage(rawMessage, 'Installation fehlgeschlagen')
       set({ status: 'error', error: message })
     }
   },

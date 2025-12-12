@@ -89,6 +89,8 @@ func (a *App) initializeToast() {
 	a.toast.SetCallback(func(action string) {
 		if action == "show-update" {
 			a.ShowPanelWithView("settings")
+		} else if action == "restart-app" {
+			a.RestartApp()
 		}
 	})
 }
@@ -462,6 +464,11 @@ func (a *App) GetCheckForUpdatesOnStartup() bool {
 // DownloadAndApplyUpdate downloads and applies the latest update
 func (a *App) DownloadAndApplyUpdate() error {
 	return a.updater.DownloadAndApply(a.ctx)
+}
+
+// ShowUpdateReadyNotification shows a toast when update download is complete
+func (a *App) ShowUpdateReadyNotification(version string) error {
+	return a.toast.ShowUpdateReady(version)
 }
 
 // RestartApp restarts the application after an update
